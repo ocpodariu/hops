@@ -73,3 +73,15 @@ func main() {
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 ```
+
+### How it works
+Let W be the window size.
+
+hops uses a counter for each time unit within the window (e.g., a 5-minute window uses 5 counters, one for each minute). Since only the current time unit counter is updated it is stored in a separate variable, `crtCount`, while the counters for the past (W-1) time units are stored in the `prevCounts` slice. The total number of events within the window is calculated as the sum of all counters from the slice plus the current time unit counter.
+
+As time passes and new events are observed, old ones are removed from the window. After each time unit that passes, the window hops one time unit forward and the counters are updated:
+1. The oldest counter, c<sub>w-1</sub>, is removed by shifting the values in `prevCounts` one position to the left.
+2. The current unit counter, c<sub>0</sub>, is copied into `prevCounts` on the rightmost position (c<sub>1</sub>).
+3. c<sub>0</sub> is reset to 0.
+
+The window hops are made through the `refreshWindow()` function. This is called before every `Observe()` and `Value()` operation to make sure the window contains only events from the past W time units.
