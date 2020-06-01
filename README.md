@@ -1,6 +1,8 @@
 ## hops
 
-hops is a hopping window counter that keeps track of how many events happened in the last N time units, with a hop size of 1 time unit. It's also safe to use concurrently by multiple readers and writers.
+hops is a hopping window counter that keeps track of how many events happened in the last N time units. It has a fixed hop size of 1 time unit, which means the window hops forward in time by 1 time unit. For example, a hopping window counter that covers the last 5 minutes hops forward in time by one minute.
+
+It's safe to use this counter concurrently with multiple readers and writers.
 
 ### Use case
 The main problem that it solves and the reason I've built it is to count a large number of events over a period of time, while using a constant amount of memory regardless of how many events occur.
@@ -83,7 +85,7 @@ Here is a visual overview of the window components as they relate to time:
 
 ![Window components](media/hops-window-components.png)
 
-As time passes and new events are observed, old ones are removed from the window. After each time unit that passes, the window hops one time unit forward and the counters are updated:
+As time passes and new events are observed, old ones are removed from the window. After each time unit that passes, the window hops forward by one time unit and the counters are updated:
 1. The oldest counter, c<sub>w-1</sub>, is removed by shifting the values in `prevCounts` one position to the left.
 2. The current unit counter, c<sub>0</sub>, is copied into `prevCounts` on the rightmost position (c<sub>1</sub>).
 3. c<sub>0</sub> is reset to 0.
